@@ -1,0 +1,154 @@
+services:
+  config-server:
+    build:
+      context: ticketingconfigserver
+      dockerfile: Dockerfileupdate
+    ports:
+      - "9094:9094"
+    networks:
+      - microservices-network
+    restart: always
+
+  discovery-server:
+    build:
+      context: ticketingdiscorvery
+      dockerfile: Dockerfileupdate
+    ports:
+      - "9093:9093"
+    depends_on:
+      - config-server
+    networks:
+      - microservices-network
+    restart: always
+
+  pvo-coris:
+    build:
+      context: ticketing-pvo-coris
+      dockerfile: Dockerfileupdate
+    ports:
+      - "40000:40000"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq  # Hôte RabbitMQ
+      - SPRING_RABBITMQ_PORT=5672      # Port RabbitMQ
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - config-server
+      - discovery-server
+    networks:
+      - microservices-network
+    restart: always
+    
+  ticketing-auth:
+    build:
+      context: ticketing-auth
+      dockerfile: Dockerfileupdate
+    ports:
+      - "40001:40001"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq  # Hôte RabbitMQ
+      - SPRING_RABBITMQ_PORT=5672      # Port RabbitMQ
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - config-server
+      - discovery-server
+    networks:
+      - microservices-network
+    restart: always
+
+  ticketing-notification:
+    build:
+      context: ticketing-notification
+      dockerfile: Dockerfileupdate
+    ports:
+      - "40002:40002"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq  # Hôte RabbitMQ
+      - SPRING_RABBITMQ_PORT=5672      # Port RabbitMQ
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - config-server
+      - discovery-server
+    networks:
+      - microservices-network
+    restart: always
+
+  pvo-administration:
+    build:
+      context: pvo-administration
+      dockerfile: Dockerfileupdate
+    ports:
+      - "40003:40003"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq  # Hôte RabbitMQ
+      - SPRING_RABBITMQ_PORT=5672      # Port RabbitMQ
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - config-server
+      - discovery-server
+    networks:
+      - microservices-network
+    restart: always
+
+  ticketing-gateway:
+    build:
+      context: ticketing-gateway
+      dockerfile: Dockerfileupdate
+    ports:
+      - "9095:9095"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq  # Hôte RabbitMQ
+      - SPRING_RABBITMQ_PORT=5672      # Port RabbitMQ
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - config-server
+      - discovery-server
+    networks:
+      - microservices-network
+    restart: always
+
+  ticketing-proxy:
+    build:
+      context: ticketingproxy
+      dockerfile: Dockerfileupdate
+    ports:
+      - "9092:9092"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq  # Hôte RabbitMQ
+      - SPRING_RABBITMQ_PORT=5672      # Port RabbitMQ
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - config-server
+      - discovery-server
+    networks:
+      - microservices-network
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_service
+    ports:
+      - "5672:5672" # Port pour les connexions AMQP
+      - "15672:15672" # Port pour l'interface de gestion
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - microservices-network
+
+  zipkin:
+      image: openzipkin/zipkin
+      container_name: zipkin_service
+      ports:
+        - "9411:9411"
+      networks:
+        - microservices-network
+
+networks:
+    microservices-network:
+      driver: bridge

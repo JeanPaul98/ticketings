@@ -1,0 +1,95 @@
+<h2 class="mt-4">List des transactions</h2>
+<nz-breadcrumb>
+  <nz-breadcrumb-item>
+    <a routerLink="/dashboard">
+      <span nz-icon nzType="home"></span>
+      <span>Tableau de board</span>
+    </a>
+  </nz-breadcrumb-item>
+  <nz-breadcrumb-item>Transactions</nz-breadcrumb-item>
+</nz-breadcrumb>
+<nz-card class="mt-3" [nzTitle]="cardHeader">
+  <div class="table-responsive">
+    <table id="datatablesSimple" class="table table-bordered table-hover">
+      <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Code Ticket</th>
+        <th scope="col">Reference</th>
+        <th scope="col">Id Transaction</th>
+        <th scope="col">Type Paiement</th>
+        <th scope="col">Montant</th>
+        <th scope="col">Operateur</th>
+        <th scope="col">Date d'expiration</th>
+        <th scope="col">Caisier</th>
+        <th scope="col">Date de creation</th>
+        <th scope="col">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (transaction of transactionsPage; track $index) {
+          <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ transaction.codeTicket }}</td>
+            <td>{{ transaction.reference }}</td>
+            <td>{{ transaction.transactionId }}</td>
+            <td>{{ transaction.typePaiement }}</td>
+            <td>{{ transaction.montant }}</td>
+            <td>{{ transaction.operateur }}</td>
+            <td>{{ transaction.dateExpiration | date: "dd/MM/yyyy" }}</td>
+            <td>{{ transaction.user.nom + " " + transaction.user.prenom }}</td>
+            <td>{{ transaction.createdAt | date: "dd/MM/yyyy à HH:mm" }}</td>
+            <td>
+              <button nz-button nzSize="small" (click)="checkValidTicket(transaction.codeTicket)" nzType="primary"
+                      class="ms-1">
+                <i class="fas fa-check"></i>
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr class="text-center">
+            <td colspan="12"> Aucune transaction disponible</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between p-2">
+      <ngb-pagination
+        [collectionSize]="collectionSize"
+        [(page)]="page"
+        [pageSize]="pageSize"
+        (pageChange)="refreshTransactions()"
+        [maxSize]="5"
+        [rotate]="true"
+        [ellipses]="false"
+        [boundaryLinks]="true"
+      >
+      </ngb-pagination>
+    </div>
+  </div>
+</nz-card>
+
+<ng-template #cardHeader>
+  <div class="card-header">
+    <div class="d-flex justify-content-between">
+      <div class="col-md-6 d-fex justify-content-between align-items-center">
+        <nz-select [(ngModel)]="pageSize" class="me-2" (ngModelChange)="refreshTransactions()">
+          <nz-option nzLabel="5" nzValue="5"></nz-option>
+          <nz-option nzLabel="10" nzValue="10"></nz-option>
+          <nz-option nzLabel="50" nzValue="50"></nz-option>
+          <nz-option nzLabel="100" nzValue="100"></nz-option>
+        </nz-select>
+        <nz-range-picker nzSize="default" [nzFormat]="'dd/MM/yyyy'" [(ngModel)]="date"
+                         (ngModelChange)="findByDate($event)"></nz-range-picker>
+      </div>
+
+      <div class="col-md-6">
+        <form class="d-flex " [formGroup]="searchFormGroup" (ngSubmit)="searchData()">
+          <input nz-input nzSize="default" formControlName="search" type="text" placeholder="Recherche...">
+          <button nz-button nzSize="default" nzType="primary" type="submit" class="ms-1">Recherche</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</ng-template>

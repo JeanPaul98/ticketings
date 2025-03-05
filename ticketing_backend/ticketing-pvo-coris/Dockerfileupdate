@@ -1,0 +1,26 @@
+# Étape 1: Build avec Maven et son JDK
+FROM maven:latest AS builder
+
+WORKDIR /app
+
+# Copier pom.xml et télécharger les dépendances pour mise en cache
+COPY  pom.xml .
+RUN mvn dependency:go-offline
+
+# Copier tout le code source
+COPY src ./src
+
+# Construire le projet Maven (génération du JAR)
+RUN mvn clean install -DskipTests
+
+# Étape 2: Image finale OpenJDK optimisée (sans Maven)
+FROM eclipse-temurin:17-jdk-jammy as base
+
+WORKDIR /app
+# Copier uniquement le JAR généré dans l'image finale
+COPY --from=builder /app/target/*.jar ticketing-pvo-coris-money.jar
+
+# Définir le point d'entrée pour exécuter l'application
+ENTRYPOINT ["java", "-jar", "/app/ticketing-pvo-coris-money.jar"]
+
+

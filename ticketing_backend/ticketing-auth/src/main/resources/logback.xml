@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Setting up log path and log file name -->
+<!--    <property name="LOG_PATH" value="C:/Users/Shadow/OneDrive/Documents/logs/" />-->
+    <property name="LOG_PATH" value="C:/Users/Administrateur/Documents/log_fail" />
+    <property name="LOG_FILE_NAME" value="app" />
+
+    <!-- Setting up logging pattern for console logging -->
+    <appender name="ConsoleOutput" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %white(%d{ISO8601}) %highlight(%-5level) [%yellow(%t)] : %msg%n%throwable
+            </Pattern>
+        </layout>
+    </appender>
+
+
+    <appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %-5level - %d{yyyy-MM-dd HH:mm:ss} --> %msg%n
+            </Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Logging at INFO level -->
+    <root level="info">
+        <appender-ref ref="LogFile" />
+        <appender-ref ref="ConsoleOutput" />
+    </root>
+
+    <!-- Logging at TRACE level -->
+    <logger name="com.acl.ticketingauth" level="trace" additivity="false">
+        <appender-ref ref="LogFile" />
+        <appender-ref ref="ConsoleOutput" />
+    </logger>
+
+</configuration>

@@ -1,0 +1,66 @@
+<div class="card shadow-lg border-0 rounded-lg mt-5">
+  <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
+  <div class="card-body">
+    <form [formGroup]="loginForm" (ngSubmit)="save()">
+      <div class="mb-3">
+        <div class="form-floating">
+          <input class="form-control" id="inputEmail" type="text" placeholder="Admin" formControlName="username"/>
+          <label for="inputEmail">Username</label>
+        </div>
+        <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                    validation: 'required',
+                    message: 'Username is required',
+                    control: loginForm.controls['username']
+                  }"></ng-container>
+      </div>
+      <div class="mb-3">
+        <div class="form-floating">
+          <input class="form-control" id="inputPassword" type="password" placeholder="Password"
+                 formControlName="password"/>
+          <label for="inputPassword">Password</label>
+        </div>
+        <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                    validation: 'required',
+                    message: 'Password is required',
+                    control: loginForm.controls['password']
+                  }"></ng-container>
+      </div>
+      <div class="form-check mb-3">
+        <input class="form-check-input" id="inputRememberPassword" type="checkbox" value=""/>
+        <label class="form-check-label" for="inputRememberPassword">Remember Password</label>
+      </div>
+      <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+        <a class="small" href="javascript:void(0);">Forgot Password?</a>
+        <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">
+          @if (isLoading$ | async) {
+            <span class="indicator-progress" [style.display]="'block'">
+              Please wait...
+              <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+            </span>
+          }
+          @if ((isLoading$ | async) === false) {
+            <span class="indicator-label">Login</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+  <div class="card-footer text-center py-3">
+    <div class="small"><a href="register.html">Need an account? Sign up!</a></div>
+  </div>
+</div>
+
+
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+  @if (control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+      <div class="fv-plugins-message-container text-danger">
+        <div class="fv-help-block">
+        <span role="alert">
+          {{ message }}
+        </span>
+        </div>
+      </div>
+    </ng-container>
+  }
+</ng-template>
